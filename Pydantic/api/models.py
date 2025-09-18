@@ -1,7 +1,7 @@
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
-from database import Base
+from .database import Base
 
 # SQLAlchemy Model (Database)
 class UserDB(Base):
@@ -18,16 +18,17 @@ class UserBase(BaseModel):
     full_name: str
     email: EmailStr
     phone: str
-    
-    @validator('full_name')
-    def validate_full_name(cls, v):
+
+    @field_validator('full_name')
+    @classmethod
+    def validate_full_name(cls, v: str) -> str:
         if len(v.strip()) < 2:
             raise ValueError('Full name must be at least 2 characters long')
         return v.strip().title()
-    
-    @validator('phone')
-    def validate_phone(cls, v):
-        # Simple phone validation - adjust as needed
+
+    @field_validator('phone')
+    @classmethod
+    def validate_phone(cls, v: str) -> str:
         phone_digits = ''.join(filter(str.isdigit, v))
         if len(phone_digits) not in [10, 11]:
             raise ValueError('Phone number must be 10 or 11 digits')
@@ -39,6 +40,5 @@ class UserCreate(UserBase):
 class UserResponse(UserBase):
     id: int
     created_at: str
-    
-    class Config:
-        from_attributes = True
+
+    model_config = ConfigDict(from_attributes=True)

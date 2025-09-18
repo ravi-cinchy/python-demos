@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-import models
+from . import models
 
 def get_user_by_email(db: Session, email: str):
     return db.query(models.UserDB).filter(models.UserDB.email == email).first()

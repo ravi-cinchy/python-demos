@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import json
+import pandas as pd
 
 # FastAPI backend URL
 API_URL = "http://localhost:8000"
@@ -40,7 +41,7 @@ with col1:
                     # Send POST request to FastAPI
                     response = requests.post(f"{API_URL}/users/", json=user_data)
                     
-                    if response.status_code == 200:
+                    if response.status_code in (200, 201):
                         st.success("🎉 User registered successfully! ✅")
                         st.balloons()
                         # Clear form by rerunning
@@ -82,9 +83,38 @@ with col2:
 # st.markdown("---")
 # st.markdown("### 🚀 How to run this application:")
 # st.code("""
-# 1. Start FastAPI server:
-#    cd Pydantic/api && uvicorn main:app --reload
+# 1. Start FastAPI server (from Pydantic folder):
+#    uv run uvicorn api.main:app --reload
 
 # 2. Start Streamlit app:
-#    cd Pydantic/ui && streamlit run app.py
+#    uv run streamlit run app.py
 # """)
+
+# st.write("Here's our first attempt at using data to create a table:")
+# st.write(pd.DataFrame({
+#     'first column': [1, 2, 3, 4],
+#     'second column': [10, 20, 30, 40]
+# }))
+
+# Add a selectbox to the sidebar:
+add_selectbox = st.sidebar.selectbox(
+    'How would you like to be contacted?',
+    ('Email', 'Home phone', 'Mobile phone')
+)
+
+# Add a slider to the sidebar:
+add_slider = st.sidebar.slider(
+    'Select a range of values',
+    0.0, 100.0, (25.0, 75.0)
+)
+
+left_column, right_column = st.columns(2)
+# You can use a column just like st.sidebar:
+left_column.button('Press me!')
+
+# Or even better, call Streamlit functions inside a "with" block:
+with right_column:
+    chosen = st.radio(
+        'Sorting hat',
+        ("Gryffindor", "Ravenclaw", "Hufflepuff", "Slytherin"))
+    st.write(f"You are in {chosen} house!")

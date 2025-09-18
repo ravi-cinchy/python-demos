@@ -1,10 +1,9 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-# Change relative imports to absolute imports
-import crud
-import models
-from database import SessionLocal, engine
+from . import crud
+from . import models
+from .database import SessionLocal, engine
 from datetime import datetime
 
 # Create database tables
@@ -29,13 +28,13 @@ def get_db():
     finally:
         db.close()
 
-@app.post("/users/", response_model=models.UserResponse)
+@app.post("/users/", response_model=models.UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user: models.UserCreate, db: Session = Depends(get_db)):
     # Check if user already exists
     existing_user = crud.get_user_by_email(db, email=user.email)
     if existing_user:
         raise HTTPException(
-            status_code=400, 
+            status_code=status.HTTP_409_CONFLICT,
             detail="🚫 Oops! This email is already registered! 😊 Please use a different email or login instead. 💌"
         )
     
